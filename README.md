@@ -1,49 +1,63 @@
 # goit-node-rest-api
 
-### Environment Setup
+A REST API for managing a contacts collection, built with Node.js and Express.
 
-Create a `.env` file in the project root based on .`env.example`, then fill in your values.
+## Installation & Setup
 
-### Start the server
+1. **Clone the repository**
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**
+
+   Create a `.env` file in the project root based on .`env.example`. Add your necessary credentials.
+
+## Running the Server
+
+Start the server in development mode (with hot-reload):
 
 ```bash
 npm run dev
 ```
 
-or
+or start in standard mode:
 
 ```bash
-node app.js
+npm start
 ```
 
-The server starts at: `http://localhost:3000`
+Server URL: `http://localhost:3000`
 
-Stop the server: `CTRL+C`
+Stop Server: Press `CTRL+C`
 
-### In another terminal
+---
 
-Add a contact:
+## Testing with API CLI
+
+You can test the API endpoints using the built-in command-line utility.
+Note: Ensure the server is running in a separate terminal window before starting the tests.
 
 ```bash
-node api_test/addContact.js
+node api-cli/index.js
 ```
 
-List all contacts:
+### Available CLI Options:
 
-```bash
-node api_test/listContacts.js
+```js
+[ Auth ]
+POST /api/auth/register — Create a new account.
+POST /api/auth/login — Sign in (token is saved automatically).
+POST /api/auth/logout — Sign out.
+GET /api/auth/current — Get current user profile.
+PATCH /api/auth/subscription — Update user subscription level.
+
+[ Contacts ]
+Full CRUD operations: Get all, Get by ID, Create, Update, and Delete.
+PATCH /api/contacts/:id/favorite — Toggle contact's favorite status.
+
+[ Token ]
+Manually set the Bearer token for authorized requests.
 ```
-
-Update a contact by ID:
-
-```bash
-node api_test/updateContact.js <id>
-```
-
-Delete a contact by ID:
-
-```bash
-node api_test/deleteContact.js <id>
-```
-
-Replace `<id>` with the contact ID from add or list output.

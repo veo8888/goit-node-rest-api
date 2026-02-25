@@ -13,3 +13,6 @@ node_modules/
 
 # Dev
 tempfordev.txt
+
+# API CLI — stored token (contains sensitive data)
+api-cli/token.json

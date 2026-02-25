@@ -1,0 +1,7 @@
+{
+  "name": "api-cli",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  }
+}

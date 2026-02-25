@@ -29,7 +29,7 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
     console.log("Database connection successful");
 
     app.listen(3000, () => {
