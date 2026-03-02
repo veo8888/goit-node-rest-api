@@ -37,7 +37,10 @@ async function logout() {
 }
 
 async function getCurrentUser() {
-  await request("GET", "/api/auth/current", { useAuth: true });
+  const result = await request("GET", "/api/auth/current", { useAuth: true });
+  if (result?.ok && result.data?.avatarURL) {
+    // console.log(`  Avatar URL: ${result.data.avatarURL}`);
+  }
 }
 
 async function updateSubscription() {

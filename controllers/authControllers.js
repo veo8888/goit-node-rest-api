@@ -1,5 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import gravatar from "gravatar";
+import path from "path";
+import { rename, unlink } from "fs/promises";
 import * as authService from "../services/authServices.js";
 import HttpError from "../helpers/HttpError.js";
 
@@ -14,10 +17,12 @@ export const register = async (req, res, next) => {
       throw HttpError(409, "Email in use");
     }
 
+    const avatarURL = gravatar.url(email, { protocol: "https", s: "200" });
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await authService.createUser({
       email,
       password: hashedPassword,
+      avatarURL,
     });
 
     res.status(201).json({
@@ -71,8 +76,8 @@ export const logout = async (req, res, next) => {
 
 export const getCurrentUser = async (req, res, next) => {
   try {
-    const { email, subscription } = req.user;
-    res.status(200).json({ email, subscription });
+    const { email, subscription, avatarURL } = req.user;
+    res.status(200).json({ email, subscription, avatarURL });
   } catch (error) {
     next(error);
   }
@@ -88,6 +93,57 @@ export const updateSubscription = async (req, res, next) => {
       email: updatedUser.email,
       subscription: updatedUser.subscription,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      throw HttpError(400, "File not provided");
+    }
+
+    const { avatarURL: oldAvatarURL } = req.user;
+    if (oldAvatarURL && oldAvatarURL.startsWith("/avatars/")) {
+      await unlink(path.join(process.cwd(), "public", oldAvatarURL)).catch(
+        () => {},
+      );
+    }
+
+    const { path: tempPath, originalname } = req.file;
+    const ext = path.extname(originalname);
+    const filename = `${req.user.id}${ext}`;
+    const avatarsDir = path.join(process.cwd(), "public", "avatars");
+    const resultPath = path.join(avatarsDir, filename);
+
+    await rename(tempPath, resultPath);
+
+    const avatarURL = `/avatars/${filename}`;
+    await authService.updateUser(req.user.id, { avatarURL });
+
+    res.status(200).json({ avatarURL });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteAvatar = async (req, res, next) => {
+  try {
+    const { avatarURL } = req.user;
+
+    if (avatarURL && avatarURL.startsWith("/avatars/")) {
+      const filePath = path.join(process.cwd(), "public", avatarURL);
+      await unlink(filePath).catch(() => {});
+    }
+
+    const gravatarURL = gravatar.url(req.user.email, {
+      protocol: "https",
+      s: "200",
+    });
+    await authService.updateUser(req.user.id, { avatarURL: gravatarURL });
+
+    res.status(200).json({ avatarURL: gravatarURL });
   } catch (error) {
     next(error);
   }
