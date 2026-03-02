@@ -16,3 +16,8 @@ tempfordev.txt
 
 # API CLI — stored token (contains sensitive data)
 api-cli/token.json
+
+# Ignore user-uploaded avatars (runtime files)
+# Keep folder structure with .gitkeep
+public/avatars/*
+!public/avatars/.gitkeep
