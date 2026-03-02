@@ -35,6 +35,14 @@ Stop Server: Press `CTRL+C`
 
 ---
 
+## Testing the Authorization Controller with Jest Unit Tests
+
+```bash
+npm test
+```
+
+---
+
 ## Testing with API CLI
 
 You can test the API endpoints using the built-in command-line utility.
@@ -46,17 +54,25 @@ node api-cli/index.js
 
 ### Available CLI Options:
 
-```js
+```
 [ Auth ]
-POST /api/auth/register — Create a new account.
-POST /api/auth/login — Sign in (token is saved automatically).
-POST /api/auth/logout — Sign out.
-GET /api/auth/current — Get current user profile.
-PATCH /api/auth/subscription — Update user subscription level.
+POST   /api/auth/register             - Create a new account (avatar generated via Gravatar).
+POST   /api/auth/login                - Sign in (token is saved automatically).
+POST   /api/auth/logout               - Sign out.
+GET    /api/auth/current              - Get current user profile (email, subscription, avatarURL).
+PATCH  /api/auth/subscription         - Update user subscription level (starter / pro / business).
+
+[ Avatar ]
+PATCH  /api/auth/avatars              - Upload a new avatar image (multipart/form-data). Replaces the previous one.
+DELETE /api/auth/avatars              - Delete the current avatar and reset it to Gravatar.
 
 [ Contacts ]
-Full CRUD operations: Get all, Get by ID, Create, Update, and Delete.
-PATCH /api/contacts/:id/favorite — Toggle contact's favorite status.
+GET    /api/contacts/                 - Get all contacts.
+GET    /api/contacts/:id              - Get a single contact by ID.
+POST   /api/contacts/                 - Create a new contact.
+PUT    /api/contacts/:id              - Replace a contact (all fields).
+DELETE /api/contacts/:id              - Delete a contact.
+PATCH  /api/contacts/:id/favorite     - Toggle contact's favorite status.
 
 [ Token ]
 Manually set the Bearer token for authorized requests.

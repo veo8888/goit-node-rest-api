@@ -2,9 +2,11 @@ import { ask, closePrompt } from "./prompt.js";
 import { getToken, saveToken } from "./config.js";
 import { ENDPOINTS as AUTH_ENDPOINTS } from "./endpoints/auth.js";
 import { ENDPOINTS as CONTACTS_ENDPOINTS } from "./endpoints/contacts.js";
+import { ENDPOINTS as AVATAR_ENDPOINTS } from "./endpoints/avatar.js";
 
 const SECTIONS = [
   { title: "Auth", endpoints: AUTH_ENDPOINTS },
+  { title: "Avatar", endpoints: AVATAR_ENDPOINTS },
   { title: "Contacts", endpoints: CONTACTS_ENDPOINTS },
 ];
 
