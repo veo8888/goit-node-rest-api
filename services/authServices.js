@@ -4,6 +4,10 @@ export async function findUserByEmail(email) {
   return User.findOne({ where: { email } });
 }
 
+export async function findUserByVerificationToken(verificationToken) {
+  return User.findOne({ where: { verificationToken } });
+}
+
 export async function findUserById(id) {
   return User.findByPk(id);
 }
