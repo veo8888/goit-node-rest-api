@@ -53,6 +53,20 @@ async function updateSubscription() {
   });
 }
 
+async function verifyEmail() {
+  const token = await ask("  Verification token: ");
+
+  await request("GET", `/api/auth/verify/${token.trim()}`);
+}
+
+async function resendVerificationEmail() {
+  const email = await ask("  Email: ");
+
+  await request("POST", "/api/auth/verify", {
+    body: { email: email.trim() },
+  });
+}
+
 export const ENDPOINTS = [
   { label: "POST   /api/auth/register", handler: register },
   {
@@ -67,5 +81,14 @@ export const ENDPOINTS = [
   {
     label: "PATCH  /api/auth/subscription       [auth]",
     handler: updateSubscription,
+  },
+  {
+    label: "GET    /api/auth/verify/:token",
+    handler: verifyEmail,
+  },
+  {
+    label: "POST   /api/auth/verify             (resend email)",
+
+    handler: resendVerificationEmail,
   },
 ];

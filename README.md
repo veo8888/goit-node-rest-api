@@ -56,11 +56,13 @@ node api-cli/index.js
 
 ```
 [ Auth ]
-POST   /api/auth/register             - Create a new account (avatar generated via Gravatar).
-POST   /api/auth/login                - Sign in (token is saved automatically).
+POST   /api/auth/register             - Create a new account (avatar generated via Gravatar). Sends a verification email.
+POST   /api/auth/login                - Sign in (token is saved automatically). Requires verified email.
 POST   /api/auth/logout               - Sign out.
 GET    /api/auth/current              - Get current user profile (email, subscription, avatarURL).
 PATCH  /api/auth/subscription         - Update user subscription level (starter / pro / business).
+GET    /api/auth/verify/:token        - Verify email address using the token received by email.
+POST   /api/auth/verify               - Resend the verification email (if not yet verified).
 
 [ Avatar ]
 PATCH  /api/auth/avatars              - Upload a new avatar image (multipart/form-data). Replaces the previous one.

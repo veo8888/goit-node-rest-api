@@ -3,8 +3,10 @@ import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
 import path from "path";
 import { rename, unlink } from "fs/promises";
+import { v4 as uuidv4 } from "uuid";
 import * as authService from "../services/authServices.js";
 import HttpError from "../helpers/HttpError.js";
+import sendEmail from "../helpers/sendEmail.js";
 
 const { JWT_SECRET } = process.env;
 
@@ -19,10 +21,19 @@ export const register = async (req, res, next) => {
 
     const avatarURL = gravatar.url(email, { protocol: "https", s: "200" });
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = uuidv4();
     const newUser = await authService.createUser({
       email,
       password: hashedPassword,
       avatarURL,
+      verificationToken,
+    });
+
+    const { BASE_URL } = process.env;
+    await sendEmail({
+      to: email,
+      subject: "Verify your email",
+      html: `<p>Click <a href="${BASE_URL}/api/auth/verify/${verificationToken}">here</a> to verify your email.</p>`,
     });
 
     res.status(201).json({
@@ -48,6 +59,10 @@ export const login = async (req, res, next) => {
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       throw HttpError(401, "Email or password is wrong");
+    }
+
+    if (!user.verify) {
+      throw HttpError(401, "Email not verified");
     }
 
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "23h" });
@@ -144,6 +159,51 @@ export const deleteAvatar = async (req, res, next) => {
     await authService.updateUser(req.user.id, { avatarURL: gravatarURL });
 
     res.status(200).json({ avatarURL: gravatarURL });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyEmail = async (req, res, next) => {
+  try {
+    const { verificationToken } = req.params;
+    const user =
+      await authService.findUserByVerificationToken(verificationToken);
+    if (!user) {
+      throw HttpError(404, "User not found");
+    }
+
+    await authService.updateUser(user.id, {
+      verify: true,
+      verificationToken: null,
+    });
+
+    res.status(200).json({ message: "Verification successful" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resendVerificationEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await authService.findUserByEmail(email);
+    if (!user) {
+      throw HttpError(404, "User not found");
+    }
+
+    if (user.verify) {
+      throw HttpError(400, "Verification has already been passed");
+    }
+
+    const { BASE_URL } = process.env;
+    await sendEmail({
+      to: email,
+      subject: "Verify your email",
+      html: `<p>Click <a href="${BASE_URL}/api/auth/verify/${user.verificationToken}">here</a> to verify your email.</p>`,
+    });
+
+    res.status(200).json({ message: "Verification email sent" });
   } catch (error) {
     next(error);
   }
